@@ -9,7 +9,7 @@ const program = new Command();
 program
   .name("screenpipe-ui")
   .description("CLI for querying screenpipe")
-  .version("0.1.0");
+  .version("0.1.2");
 
 program.addCommand(searchCommand);
 program.addCommand(healthCommand);

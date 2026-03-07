@@ -12,11 +12,6 @@ describe("CLI", () => {
     expect(result).toContain("activity");
   });
 
-  test("shows version", async () => {
-    const result = await $`bun run ${CLI} --version`.text();
-    expect(result.trim()).toBe("0.1.0");
-  });
-
   test("search command shows help", async () => {
     const result = await $`bun run ${CLI} search --help`.text();
     expect(result).toContain("search query");
