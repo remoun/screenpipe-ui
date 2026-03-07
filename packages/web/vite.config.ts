@@ -4,6 +4,11 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    "import.meta.env.SCREENPIPE_BASE_URL": JSON.stringify(
+      process.env.SCREENPIPE_BASE_URL ?? ""
+    ),
+  },
   resolve: {
     alias: {
       "@screenpipe-ui/core": path.resolve(__dirname, "../core/src/index.ts"),

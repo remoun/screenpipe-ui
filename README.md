@@ -82,6 +82,10 @@ screenpipe-ui search "github" --app Chrome
 screenpipe-ui health
 screenpipe-ui activity --today
 screenpipe-ui activity --app "VS Code"
+
+# Custom server: --url or SCREENPIPE_BASE_URL
+screenpipe-ui search "query" --url http://custom:3030
+SCREENPIPE_BASE_URL=http://custom:3030 screenpipe-ui health
 ```
 
 ## TUI keyboard shortcuts
@@ -107,18 +111,20 @@ bun test packages/core/
 bun web
 ```
 
+**PRs must include tests** for new behavior, bug fixes, or refactors. Run `bun test --recursive` and ensure all tests pass before submitting.
+
 ## Publishing
 
 ```bash
-# Build all packages
-bun run build
-
-# Publish (requires npm org @screenpipe-ui)
-cd packages/core && bun publish
-cd packages/react && bun publish
-cd packages/cli && bun publish
-cd packages/tui && bun publish
+# Build all packages, then publish in dependency order
+bun run build && \
+cd packages/core && bun publish && \
+cd ../react && bun publish && \
+cd ../cli && bun publish && \
+cd ../tui && bun publish
 ```
+
+Requires npm login (`npm login`) and access to the `@screenpipe-ui` org.
 
 ## License
 

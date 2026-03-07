@@ -17,7 +17,7 @@ export const searchCommand = new Command("search")
   .option("-t, --type <type>", "content type: all, ocr, audio", "all")
   .option("-l, --limit <number>", "max results", "20")
   .option("--app <name>", "filter by app name")
-  .option("--url <url>", "screenpipe server URL", "http://localhost:3030")
+  .option("--url <url>", "screenpipe server URL", process.env.SCREENPIPE_BASE_URL || "http://localhost:3030")
   .action(async (query: string, opts) => {
     const client = createClient({ baseUrl: opts.url });
 

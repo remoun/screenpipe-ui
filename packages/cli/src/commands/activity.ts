@@ -13,7 +13,7 @@ export const activityCommand = new Command("activity")
   .option("--today", "show today's activity only", false)
   .option("--app <name>", "filter by app name")
   .option("-l, --limit <number>", "max results", "50")
-  .option("--url <url>", "screenpipe server URL", "http://localhost:3030")
+  .option("--url <url>", "screenpipe server URL", process.env.SCREENPIPE_BASE_URL || "http://localhost:3030")
   .action(async (opts) => {
     const client = createClient({ baseUrl: opts.url });
 

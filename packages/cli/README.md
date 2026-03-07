@@ -29,6 +29,7 @@ Options:
 - `--type <type>` — filter by `ocr`, `audio`, or `all` (default: `all`)
 - `--limit <n>` — max results (default: 20)
 - `--app <name>` — filter by application name
+- `--url <url>` — screenpipe server URL (or set `SCREENPIPE_BASE_URL`)
 
 ### health
 
@@ -55,7 +56,10 @@ Options:
 
 ## Configuration
 
-Connects to `http://localhost:3030` by default. Set `SCREENPIPE_BASE_URL` to override.
+Connects to `http://localhost:3030` by default. Override with:
+
+- `--url <url>` — per-command (e.g. `screenpipe-ui search "query" --url http://custom:3030`)
+- `SCREENPIPE_BASE_URL` — environment variable
 
 ## License
 

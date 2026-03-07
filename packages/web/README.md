@@ -31,7 +31,10 @@ bun run --cwd packages/web build
 
 ## Configuration
 
-Connects to `http://localhost:3030` by default. The screenpipe API URL can be configured via the `SCREENPIPE_BASE_URL` environment variable.
+Connects to `http://localhost:3030` by default. Override with:
+
+- `?url=<url>` — query param when loading the app (e.g. `http://localhost:5173/?url=http://custom:3030`)
+- `SCREENPIPE_BASE_URL` — environment variable when starting the dev server or building
 
 ## License
 

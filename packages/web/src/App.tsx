@@ -1,13 +1,23 @@
 import { useMemo } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { createClient } from "@screenpipe-ui/core";
+import { getBaseUrl } from "./get-base-url";
 import { Layout } from "./components/Layout";
 import { SearchPage } from "./pages/SearchPage";
 import { TimelinePage } from "./pages/TimelinePage";
 import { MeetingsPage } from "./pages/MeetingsPage";
 
 export function App() {
-  const client = useMemo(() => createClient(), []);
+  const client = useMemo(
+    () =>
+      createClient({
+        baseUrl: getBaseUrl(
+          typeof window !== "undefined" ? window.location.search : "",
+          import.meta.env.SCREENPIPE_BASE_URL
+        ),
+      }),
+    []
+  );
 
   return (
     <BrowserRouter>

@@ -40,6 +40,16 @@ bun web              # start web dev server
 - **Testing**: `bun test` with `bun:test` built-in runner; happy-dom for React hook tests
 - **Web resolves workspace packages via Vite aliases** to source (not dist) for HMR
 
+## Testing requirements
+
+**All changes must include tests.** Before claiming work is complete, run `bun test --recursive` and ensure all tests pass.
+
+- **New behavior**: Add tests that cover the new logic. Place tests next to source (e.g. `__tests__/*.test.ts`) or in package test directories.
+- **Bug fixes**: Add or extend a test that reproduces the bug and asserts the fix.
+- **Refactors**: Update existing tests if behavior changes; add tests for any newly exposed behavior.
+- **Packages**: Tests live per package — `core`, `react`, `cli`, etc. each have their own `__tests__` or `*.test.ts` files.
+- **Verification**: Never claim tests pass without running `bun test --recursive` and confirming success in the output.
+
 ## Key types
 
 - `ContentItem` — union type: OCR | Audio | UI (no "Input" type in published SDK)

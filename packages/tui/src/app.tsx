@@ -9,9 +9,12 @@ import { StatusBar } from "./components/status-bar.tsx";
 const TABS = ["Search", "Timeline", "Meetings"] as const;
 type Tab = (typeof TABS)[number];
 
-export function App() {
+export function App({ baseUrl }: { baseUrl?: string }) {
   const app = useApp();
-  const client = useMemo(() => createClient(), []);
+  const client = useMemo(
+    () => createClient(baseUrl ? { baseUrl } : undefined),
+    [baseUrl]
+  );
   const [activeTab, setActiveTab] = useState<Tab>("Search");
 
   useInput((input, key) => {

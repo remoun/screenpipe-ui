@@ -28,7 +28,10 @@ bunx @screenpipe-ui/tui
 
 ## Configuration
 
-Connects to `http://localhost:3030` by default. Set `SCREENPIPE_BASE_URL` to override.
+Connects to `http://localhost:3030` by default. Override with:
+
+- `--url <url>` — e.g. `bunx @screenpipe-ui/tui --url http://custom:3030`
+- `SCREENPIPE_BASE_URL` — environment variable
 
 ## License
 

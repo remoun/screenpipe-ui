@@ -4,7 +4,7 @@ import { createClient } from "@screenpipe-ui/core";
 
 export const healthCommand = new Command("health")
   .description("Check screenpipe server health")
-  .option("--url <url>", "screenpipe server URL", "http://localhost:3030")
+  .option("--url <url>", "screenpipe server URL", process.env.SCREENPIPE_BASE_URL || "http://localhost:3030")
   .action(async (opts) => {
     const client = createClient({ baseUrl: opts.url });
 

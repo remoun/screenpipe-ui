@@ -36,4 +36,16 @@ describe("CLI", () => {
     expect(result).toContain("--today");
     expect(result).toContain("--app");
   });
+
+  test("health uses --url when provided", async () => {
+    const proc = await $`bun run ${CLI} health --url http://from-flag:9999 2>&1`.nothrow();
+    expect(proc.exitCode).toBe(1);
+    expect(proc.stdout.toString()).toContain("from-flag:9999");
+  });
+
+  test("health uses SCREENPIPE_BASE_URL when --url not provided", async () => {
+    const proc = await $`SCREENPIPE_BASE_URL=http://from-env:8888 bun run ${CLI} health 2>&1`.nothrow();
+    expect(proc.exitCode).toBe(1);
+    expect(proc.stdout.toString()).toContain("from-env:8888");
+  });
 });
