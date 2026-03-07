@@ -1,6 +1,10 @@
 {
   "name": "screenpipe-ui",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/remoun/screenpipe-ui"
+  },
   "workspaces": ["packages/*"],
   "scripts": {
     "cli": "bun run packages/cli/src/index.ts",

@@ -26,7 +26,7 @@ Also works with `npx` if you prefer.
 ### From source
 
 ```bash
-git clone https://github.com/your-user/screenpipe-ui
+git clone https://github.com/remoun/screenpipe-ui
 cd screenpipe-ui
 bun install
 

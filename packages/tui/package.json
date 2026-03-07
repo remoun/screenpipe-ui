@@ -1,6 +1,6 @@
 {
   "name": "@screenpipe-ui/tui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
@@ -11,6 +11,11 @@
     "test": "bun test",
     "dev": "bun run src/index.tsx",
     "build": "tsup src/index.tsx --format esm --target node18 --clean && chmod +x dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/remoun/screenpipe-ui",
+    "directory": "packages/tui"
   },
   "publishConfig": {
     "access": "public"

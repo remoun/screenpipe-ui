@@ -5,7 +5,7 @@ Browser-based SPA for [screenpipe](https://github.com/screenpipe/screenpipe), bu
 ## Quick start
 
 ```bash
-git clone https://github.com/your-user/screenpipe-ui
+git clone https://github.com/remoun/screenpipe-ui
 cd screenpipe-ui
 bun install
 bun web
