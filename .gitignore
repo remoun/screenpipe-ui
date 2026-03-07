@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env*local
+.env*test
+.env*production
+
+# Build
+dist/
+*.tsbuildinfo
+
+# UI Artifacts
+.DS_Store

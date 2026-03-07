@@ -1,0 +1,28 @@
+{
+  "name": "@screenpipe-ui/core",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "publishConfig": { "access": "public" },
+  "scripts": {
+    "test": "bun test",
+    "build": "tsup src/index.ts --format esm --dts --clean"
+  },
+  "dependencies": {
+    "@screenpipe/js": "^1.0.21",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.14",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.3"
+  }
+}

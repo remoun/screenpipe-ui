@@ -1,0 +1,12 @@
+{
+  "name": "screenpipe-ui",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "cli": "bun run packages/cli/src/index.ts",
+    "tui": "bun run packages/tui/src/index.tsx",
+    "web": "bun run --cwd packages/web vite dev",
+    "build": "bun run --filter '*' build",
+    "test": "bun test --recursive"
+  }
+}
