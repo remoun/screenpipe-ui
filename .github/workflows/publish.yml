@@ -61,16 +61,24 @@ jobs:
         run: bun run build
 
       - name: Publish core
-        run: cd packages/core && npm publish --access public --provenance
+        run: |
+          cd packages/core && bun pm pack
+          npm publish *.tgz --access public --provenance
 
       - name: Publish react
-        run: cd packages/react && npm publish --access public --provenance
+        run: |
+          cd packages/react && bun pm pack
+          npm publish *.tgz --access public --provenance
 
       - name: Publish cli
-        run: cd packages/cli && npm publish --access public --provenance
+        run: |
+          cd packages/cli && bun pm pack
+          npm publish *.tgz --access public --provenance
 
       - name: Publish tui
-        run: cd packages/tui && npm publish --access public --provenance
+        run: |
+          cd packages/tui && bun pm pack
+          npm publish *.tgz --access public --provenance
 
       - name: Create and push tag
         run: |

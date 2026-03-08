@@ -6,7 +6,7 @@
     },
     "packages/cli": {
       "name": "@screenpipe-ui/cli",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "bin": {
         "screenpipe-ui": "./dist/index.js",
       },
@@ -23,7 +23,7 @@
     },
     "packages/core": {
       "name": "@screenpipe-ui/core",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "dependencies": {
         "@screenpipe/js": "^1.0.21",
         "zustand": "^5.0.0",
@@ -36,7 +36,7 @@
     },
     "packages/react": {
       "name": "@screenpipe-ui/react",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "dependencies": {
         "@screenpipe-ui/core": "workspace:*",
         "zustand": "^5.0.0",
@@ -57,7 +57,7 @@
     },
     "packages/tui": {
       "name": "@screenpipe-ui/tui",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "bin": {
         "screenpipe-tui": "./dist/index.js",
       },
@@ -79,7 +79,7 @@
     },
     "packages/web": {
       "name": "@screenpipe-ui/web",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "dependencies": {
         "@screenpipe-ui/core": "workspace:*",
         "@screenpipe-ui/react": "workspace:*",
