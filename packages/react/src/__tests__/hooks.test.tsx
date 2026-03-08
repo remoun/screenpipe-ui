@@ -11,9 +11,9 @@ if (!globalThis.document) {
 }
 import { describe, test, expect, afterEach } from "bun:test";
 import { renderHook, cleanup } from "@testing-library/react";
-import { useSearch } from "../use-search.ts";
-import { useHealth } from "../use-health.ts";
-import { useTimeline } from "../use-timeline.ts";
+import { useSearch } from "../hooks/use-search.ts";
+import { useHealth } from "../hooks/use-health.ts";
+import { useTimeline } from "../hooks/use-timeline.ts";
 import { ScreenpipeUIClient } from "@screenpipe-ui/core";
 
 afterEach(() => cleanup());

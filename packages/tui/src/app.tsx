@@ -5,12 +5,15 @@ import { SearchView } from "./views/search-view.tsx";
 import { TimelineView } from "./views/timeline-view.tsx";
 import { MeetingsView } from "./views/meetings-view.tsx";
 import { StatusBar } from "./components/status-bar.tsx";
+import { useStdoutDimensions } from "./hooks/use-stdout-dimensions.ts";
 
 const TABS = ["Search", "Timeline", "Meetings"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App({ baseUrl }: { baseUrl?: string }) {
   const app = useApp();
+  const [columns] = useStdoutDimensions();
+  const dividerWidth = Math.max(20, columns - 2);
   const client = useMemo(
     () => createClient(baseUrl ? { baseUrl } : undefined),
     [baseUrl]
@@ -49,7 +52,7 @@ export function App({ baseUrl }: { baseUrl?: string }) {
 
       {/* Divider */}
       <Box paddingX={1}>
-        <Text color="gray">{"─".repeat(78)}</Text>
+        <Text color="gray">{"─".repeat(dividerWidth)}</Text>
       </Box>
 
       {/* Active view */}

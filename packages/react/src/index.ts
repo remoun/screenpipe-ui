@@ -1,3 +1,3 @@
-export { useSearch } from "./use-search.ts";
-export { useTimeline } from "./use-timeline.ts";
-export { useHealth } from "./use-health.ts";
+export { useSearch } from "./hooks/use-search.ts";
+export { useTimeline } from "./hooks/use-timeline.ts";
+export { useHealth } from "./hooks/use-health.ts";

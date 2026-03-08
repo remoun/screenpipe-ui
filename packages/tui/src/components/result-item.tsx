@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Box, Text } from "ink";
 import type { ContentItem } from "@screenpipe-ui/core";
 import {
@@ -14,7 +14,7 @@ interface Props {
   selected: boolean;
 }
 
-export function ResultItem({ item, selected }: Props) {
+export const ResultItem = memo(function ResultItem({ item, selected }: Props) {
   const label = contentTypeLabel(item);
   const app = getContentAppName(item);
   const ts = getContentTimestamp(item);
@@ -45,4 +45,4 @@ export function ResultItem({ item, selected }: Props) {
       </Text>
     </Box>
   );
-}
+});

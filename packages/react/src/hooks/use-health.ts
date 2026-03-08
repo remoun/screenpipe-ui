@@ -1,6 +1,6 @@
 import { useSyncExternalStore, useCallback, useRef } from "react";
 import { createHealthStore } from "@screenpipe-ui/core";
-import { ScreenpipeUIClient } from "@screenpipe-ui/core";
+import type { ScreenpipeUIClient } from "@screenpipe-ui/core";
 
 type StoreApi = ReturnType<typeof createHealthStore>;
 
