@@ -185,6 +185,7 @@ export function SearchView({ client }: Props) {
             key={idx}
             item={item}
             selected={idx === selectedIndex}
+            contentWidth={contentWidth}
           />
         ))}
 

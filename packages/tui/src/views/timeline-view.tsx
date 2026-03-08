@@ -100,7 +100,7 @@ export function TimelineView({ client }: Props) {
   const itemCount = flatRows.filter((r) => r.type === "item").length;
   const currentItemRank = (() => {
     let rank = 0;
-    for (let i = 0; i <= clampedSelected; i++) {
+    for (let i = 0; i <= clampedSelected && i < flatRows.length; i++) {
       if (flatRows[i].type === "item") rank++;
     }
     return rank;
@@ -240,7 +240,8 @@ export function TimelineView({ client }: Props) {
           const label = contentTypeLabel(row.item);
           const app = getContentAppName(row.item);
           const time = formatTime(getContentTimestamp(row.item));
-          const preview = contentPreview(row.item, 50);
+          const previewMaxLen = Math.max(10, contentWidth - 31);
+          const preview = contentPreview(row.item, previewMaxLen);
 
           const typeColor =
             row.item.type === "OCR"

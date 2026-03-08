@@ -10,13 +10,19 @@ import {
   truncate,
 } from "@screenpipe-ui/core";
 import { useTimeline } from "@screenpipe-ui/react";
+import { useStdoutDimensions } from "../hooks/use-stdout-dimensions.ts";
 
 interface Props {
   client: ScreenpipeUIClient;
 }
 
+const MEETINGS_FIXED_WIDTH = 25; // cursor(1) + time(5) + device(16) + gaps(3)
+
 export function MeetingsView({ client }: Props) {
   const { items, loading, error, load } = useTimeline(client);
+  const [columns] = useStdoutDimensions();
+  const contentWidth = Math.max(20, columns - 4);
+  const previewMaxLen = Math.max(10, contentWidth - MEETINGS_FIXED_WIDTH);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -59,7 +65,7 @@ export function MeetingsView({ client }: Props) {
       </Box>
 
       <Box marginBottom={1}>
-        <Text color="gray">{"─".repeat(76)}</Text>
+        <Text color="gray">{"─".repeat(contentWidth)}</Text>
       </Box>
 
       {loading && (
@@ -100,7 +106,7 @@ export function MeetingsView({ client }: Props) {
                   {(device ?? "mic").slice(0, 16).padEnd(16)}
                 </Text>
                 <Text color={isSelected ? "white" : undefined} dimColor={!isSelected}>
-                  {truncate(text.replace(/\n/g, " "), 50)}
+                  {truncate(text.replace(/\n/g, " "), previewMaxLen)}
                 </Text>
               </Box>
 
