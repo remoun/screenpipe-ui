@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - "packages/**/package.json"
+      - .github/workflows/publish.yml
   workflow_dispatch:
 
 permissions:
   id-token: write
-  contents: read
+  # required for pushing tags
+  contents: write
 
 jobs:
   check:
@@ -69,3 +71,11 @@ jobs:
 
       - name: Publish tui
         run: cd packages/tui && npm publish --access public --provenance
+
+      - name: Create and push tag
+        run: |
+          VERSION=$(jq -r '.version' packages/core/package.json)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
