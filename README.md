@@ -115,16 +115,18 @@ bun web
 
 ## Publishing
 
+Publishing is automated via GitHub Actions: push to `main` with updated `packages/*/package.json` versions, or run the workflow manually.
+
+**Setup**: (1) Use [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC). No tokens needed. On npmjs.com, go to each package’s Settings → Trusted publishing, add a GitHub Actions publisher, and set workflow filename to `publish.yml`. Configure for: `@screenpipe-ui/core`, `@screenpipe-ui/react`, `@screenpipe-ui/cli`, `@screenpipe-ui/tui`. (2) In GitHub repo Settings → Environments, create an `npm` environment and add required reviewers if desired.
+
+Manual publish:
 ```bash
-# Build all packages, then publish in dependency order
 bun run build && \
 cd packages/core && bun publish && \
 cd ../react && bun publish && \
 cd ../cli && bun publish && \
 cd ../tui && bun publish
 ```
-
-Requires npm login (`npm login`) and access to the `@screenpipe-ui` org.
 
 ## License
 
