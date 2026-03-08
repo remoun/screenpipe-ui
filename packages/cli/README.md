@@ -2,6 +2,8 @@
 
 Command-line interface for querying [screenpipe](https://github.com/screenpipe/screenpipe) from your terminal.
 
+Part of [screenpipe-ui](https://github.com/remoun/screenpipe-ui). Also available: **TUI** (`bunx @screenpipe-ui/tui`) and **Web** (run `bun web` from the [repo](https://github.com/remoun/screenpipe-ui)).
+
 ## Quick start
 
 ```bash

@@ -2,6 +2,8 @@
 
 Interactive terminal UI for [screenpipe](https://github.com/screenpipe/screenpipe), built with Ink (React for terminals).
 
+Part of [screenpipe-ui](https://github.com/remoun/screenpipe-ui). Also available: **CLI** (`bunx @screenpipe-ui/cli`) and **Web** (run `bun web` from the [repo](https://github.com/remoun/screenpipe-ui)).
+
 ## Quick start
 
 ```bash
