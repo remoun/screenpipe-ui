@@ -169,16 +169,34 @@ describe("timeline store", () => {
   test("initial state has today's range", () => {
     const store = createTimelineStore();
     const state = store.getState();
-    const startDate = new Date(state.startTime);
+    const startDate = new Date(state.startTime!);
     expect(startDate.getHours()).toBe(0);
     expect(state.items).toEqual([]);
+    expect(state.dateRangePreset).toBe("today");
   });
 
-  test("setTimeRange updates range", () => {
+  test("initialDateRangePreset option hydrates from persisted value", () => {
+    const store = createTimelineStore({ initialDateRangePreset: "yesterday" });
+    const state = store.getState();
+    expect(state.dateRangePreset).toBe("yesterday");
+    expect(state.startTime).toBeDefined();
+    expect(state.endTime).toBeDefined();
+  });
+
+  test("initialDateRangePreset 'all' sets open-ended range", () => {
+    const store = createTimelineStore({ initialDateRangePreset: "all" });
+    const state = store.getState();
+    expect(state.dateRangePreset).toBe("all");
+    expect(state.startTime).toBeUndefined();
+    expect(state.endTime).toBeUndefined();
+  });
+
+  test("setDateRangePreset updates range", () => {
     const store = createTimelineStore();
-    store.getState().setTimeRange("2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z");
-    expect(store.getState().startTime).toBe("2024-01-01T00:00:00Z");
-    expect(store.getState().endTime).toBe("2024-01-02T00:00:00Z");
+    store.getState().setDateRangePreset("all");
+    expect(store.getState().startTime).toBeUndefined();
+    expect(store.getState().endTime).toBeUndefined();
+    expect(store.getState().dateRangePreset).toBe("all");
   });
 
   test("setAppFilter updates filter", () => {

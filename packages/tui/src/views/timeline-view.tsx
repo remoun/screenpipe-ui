@@ -8,6 +8,7 @@ import {
   formatTime,
   getContentAppName,
   getContentTimestamp,
+  DATE_RANGE_PRESETS,
 } from "@screenpipe-ui/core";
 import { useTimeline } from "@screenpipe-ui/react";
 import { DetailView } from "../components/detail-view.tsx";
@@ -47,8 +48,16 @@ function groupByHour(items: ContentItem[]): HourGroup[] {
 const VISIBLE_ROWS = 20;
 
 export function TimelineView({ client }: Props) {
-  const { items, loading, error, load, startTime, endTime } =
-    useTimeline(client);
+  const {
+    items,
+    loading,
+    error,
+    load,
+    startTime,
+    endTime,
+    dateRangePreset,
+    setDateRangePreset,
+  } = useTimeline(client);
 
   const [columns, rows] = useStdoutDimensions();
   const contentWidth = Math.max(20, columns - 4);
@@ -164,6 +173,14 @@ export function TimelineView({ client }: Props) {
       setScrollOffset(0);
       setSelectedFlatIdx(0);
     }
+    if (input === "d") {
+      const idx = DATE_RANGE_PRESETS.findIndex((p) => p.value === dateRangePreset);
+      const next = DATE_RANGE_PRESETS[(idx + 1) % DATE_RANGE_PRESETS.length];
+      setDateRangePreset(next.value);
+      load();
+      setScrollOffset(0);
+      setSelectedFlatIdx(0);
+    }
     if (key.return) {
       const row = flatRows[clampedSelected];
       if (row?.type === "item") {
@@ -182,11 +199,13 @@ export function TimelineView({ client }: Props) {
           Timeline
         </Text>
         <Text dimColor>
-          {new Date(startTime).toLocaleDateString()} -{" "}
-          {new Date(endTime).toLocaleTimeString()}
+          {startTime && endTime
+            ? `${new Date(startTime).toLocaleDateString()} - ${new Date(endTime).toLocaleTimeString()}`
+            : "All time"}
         </Text>
+        <Text dimColor> [{DATE_RANGE_PRESETS.find((p) => p.value === dateRangePreset)?.label ?? dateRangePreset}]</Text>
         <Box flexGrow={1} />
-        <Text dimColor>{items.length} items | r: reload | j/k: navigate | Enter: view</Text>
+        <Text dimColor>{items.length} items | d: date | r: reload | j/k: navigate | Enter: view</Text>
       </Box>
 
       <Box marginBottom={1}>
@@ -209,7 +228,7 @@ export function TimelineView({ client }: Props) {
       )}
 
       {!loading && items.length === 0 && !error && (
-        <Text dimColor>No timeline items for today. Press r to reload.</Text>
+        <Text dimColor>No timeline items for this period. Press d to change date, r to reload.</Text>
       )}
 
       {!loading && detailItem && (

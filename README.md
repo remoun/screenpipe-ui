@@ -65,7 +65,7 @@ packages/
   web/       Vite + React + Tailwind SPA
 ```
 
-All packages share `core` for data fetching, state management, and formatting. The CLI calls core functions directly for speed. The TUI and Web both use React (Ink is a React renderer for terminals) and share hooks via `react`.
+All packages share `core` for data fetching, state management, and formatting. The CLI calls core functions directly for speed. The TUI and Web both use React (Ink is a React renderer for terminals) and share hooks via `react`. Config persistence uses a `PreferenceStorage` adapter — Web uses `localStorage`, TUI uses `~/.config/screenpipe-ui/preferences.json`.
 
 ## Features
 
@@ -73,6 +73,8 @@ All packages share `core` for data fetching, state management, and formatting. T
 - **Timeline** — browse activity chronologically, filter by app
 - **Meetings** — view detected meetings and transcripts
 - **Health** — check screenpipe server status
+- **Date range presets** — Today, Yesterday, Last 7 days, All (Web dropdown; TUI: press `d` to cycle)
+- **Config persistence** — date range preference is saved (Web: `localStorage`; TUI: `~/.config/screenpipe-ui/preferences.json`)
 
 ## CLI usage
 
@@ -96,12 +98,13 @@ SCREENPIPE_BASE_URL=http://custom:3030 screenpipe-ui health
 | `j` / `k` | Navigate up / down |
 | `/` | Focus search input |
 | `Enter` | Expand / select item |
+| `d` | Cycle date range preset (Today → Yesterday → Last 7 days → All) |
 | `q` | Quit |
 
 ## Development
 
 ```bash
-# Run all tests (60 tests across 6 files)
+# Run all tests (90+ tests across packages)
 bun test --recursive
 
 # Run tests for a specific package

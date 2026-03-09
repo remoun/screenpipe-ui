@@ -2,6 +2,7 @@ import { type FormEvent } from "react";
 import { useSearch } from "@screenpipe-ui/react";
 import type { ScreenpipeUIClient } from "@screenpipe-ui/core";
 import { SearchResult } from "../components/SearchResult";
+import { useKeyboardNavigation } from "../hooks/use-keyboard-navigation";
 
 const contentTypes = [
   { value: "all", label: "All" },
@@ -29,12 +30,25 @@ export function SearchPage({ client }: { client: ScreenpipeUIClient }) {
     search();
   };
 
+  const {
+    selectedIndex,
+    setSelectedIndex,
+    expandedIndex,
+    toggleExpanded,
+    selectedRef,
+  } = useKeyboardNavigation({ itemCount: results.length });
+
   const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
   const totalPages = Math.max(1, Math.ceil(pagination.total / pagination.limit));
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-8">
-      <h1 className="text-lg font-semibold mb-6">Search</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-lg font-semibold">Search</h1>
+        {results.length > 0 && (
+          <span className="text-xs text-gray-500">j/k: navigate · Enter: expand</span>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="flex gap-2">
@@ -86,7 +100,15 @@ export function SearchPage({ client }: { client: ScreenpipeUIClient }) {
       {/* Results */}
       <div className="flex flex-col gap-3">
         {results.map((item, i) => (
-          <SearchResult key={`${item.type}-${i}`} item={item} />
+          <SearchResult
+            key={`${item.type}-${i}`}
+            item={item}
+            selected={i === selectedIndex}
+            expanded={expandedIndex === i}
+            onExpandedChange={() => toggleExpanded(i)}
+            onSelect={() => setSelectedIndex(i)}
+            innerRef={i === selectedIndex ? selectedRef : undefined}
+          />
         ))}
       </div>
 

@@ -54,3 +54,40 @@ export function todayRange(): { start: string; end: string } {
     end: now.toISOString(),
   };
 }
+
+export function yesterdayRange(): { start: string; end: string } {
+  const now = new Date();
+  const end = new Date(now);
+  end.setHours(0, 0, 0, 0);
+  const start = new Date(end);
+  start.setDate(start.getDate() - 1);
+  return {
+    start: start.toISOString(),
+    end: end.toISOString(),
+  };
+}
+
+export function last7DaysRange(): { start: string; end: string } {
+  const now = new Date();
+  const end = new Date(now);
+  const start = new Date(now);
+  start.setDate(start.getDate() - 6);
+  start.setHours(0, 0, 0, 0);
+  return {
+    start: start.toISOString(),
+    end: end.toISOString(),
+  };
+}
+
+export type DateRangePreset = "today" | "yesterday" | "last7" | "all";
+
+export const DATE_RANGE_PRESETS: {
+  value: DateRangePreset;
+  label: string;
+  getRange?: () => { start: string; end: string };
+}[] = [
+  { value: "today", label: "Today", getRange: todayRange },
+  { value: "yesterday", label: "Yesterday", getRange: yesterdayRange },
+  { value: "last7", label: "Last 7 days", getRange: last7DaysRange },
+  { value: "all", label: "All" },
+];

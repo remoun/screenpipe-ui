@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import { createClient } from "@screenpipe-ui/core";
+import { PreferenceStorageProvider } from "@screenpipe-ui/react";
+import { createFileConfigAdapter } from "./preference-storage.ts";
 import { SearchView } from "./views/search-view.tsx";
 import { TimelineView } from "./views/timeline-view.tsx";
 import { MeetingsView } from "./views/meetings-view.tsx";
@@ -18,6 +20,7 @@ export function App({ baseUrl }: { baseUrl?: string }) {
     () => createClient(baseUrl ? { baseUrl } : undefined),
     [baseUrl]
   );
+  const preferenceStorage = useMemo(() => createFileConfigAdapter(), []);
   const [activeTab, setActiveTab] = useState<Tab>("Search");
 
   useInput((input, key) => {
@@ -33,6 +36,7 @@ export function App({ baseUrl }: { baseUrl?: string }) {
   });
 
   return (
+    <PreferenceStorageProvider value={preferenceStorage}>
     <Box flexDirection="column" width="100%">
       {/* Tab bar */}
       <Box paddingX={1} gap={1}>
@@ -65,5 +69,6 @@ export function App({ baseUrl }: { baseUrl?: string }) {
       {/* Status bar */}
       <StatusBar client={client} />
     </Box>
+    </PreferenceStorageProvider>
   );
 }

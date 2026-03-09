@@ -6,6 +6,7 @@ import {
   getContentTimestamp,
   timeAgo,
 } from "@screenpipe-ui/core";
+import { ExpandableContentCard } from "./ExpandableContentCard";
 
 const typeBadgeColors: Record<string, string> = {
   screen: "bg-blue-900/50 text-blue-400",
@@ -14,7 +15,24 @@ const typeBadgeColors: Record<string, string> = {
   input: "bg-emerald-900/50 text-emerald-400",
 };
 
-export function SearchResult({ item }: { item: ContentItem }) {
+export interface SearchResultProps {
+  item: ContentItem;
+  selected?: boolean;
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
+  onSelect?: () => void;
+  /** Ref for scroll-into-view when selected */
+  innerRef?: React.RefObject<HTMLDivElement | null>;
+}
+
+export function SearchResult({
+  item,
+  selected = false,
+  expanded,
+  onExpandedChange,
+  onSelect,
+  innerRef,
+}: SearchResultProps) {
   const label = contentTypeLabel(item);
   const badgeColor = typeBadgeColors[label] ?? "bg-gray-800 text-gray-400";
   const appName = getContentAppName(item);
@@ -22,21 +40,32 @@ export function SearchResult({ item }: { item: ContentItem }) {
   const preview = contentPreview(item, 200);
 
   return (
-    <div className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors">
-      <div className="flex items-center gap-2 mb-2">
-        <span
-          className={`text-[10px] uppercase tracking-wider font-medium px-2 py-0.5 rounded ${badgeColor}`}
-        >
-          {label}
-        </span>
-        <span className="text-xs text-gray-500">{appName}</span>
-        <span className="text-xs text-gray-600 ml-auto">
-          {timeAgo(timestamp)}
-        </span>
-      </div>
-      <p className="text-sm text-gray-300 font-mono leading-relaxed whitespace-pre-wrap break-words">
-        {preview}
-      </p>
+    <div ref={innerRef} onClick={onSelect}>
+      <ExpandableContentCard
+        item={item}
+        summary={
+          <>
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className={`text-[10px] uppercase tracking-wider font-medium px-2 py-0.5 rounded ${badgeColor}`}
+              >
+                {label}
+              </span>
+              <span className="text-xs text-gray-500">{appName}</span>
+              <span className="text-xs text-gray-600 ml-auto">
+                {timeAgo(timestamp)}
+              </span>
+            </div>
+            <p className="text-sm text-gray-300 font-mono leading-relaxed whitespace-pre-wrap break-words">
+              {preview}
+            </p>
+          </>
+        }
+        summaryClassName="flex flex-col items-stretch"
+        selected={selected}
+        expanded={expanded}
+        onExpandedChange={onExpandedChange}
+      />
     </div>
   );
 }

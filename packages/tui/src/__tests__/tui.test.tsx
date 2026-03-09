@@ -36,11 +36,12 @@ const defaultUseTimeline = () => ({
   items: [] as { type: string; content: Record<string, unknown> }[],
   startTime: new Date().toISOString(),
   endTime: new Date().toISOString(),
+  dateRangePreset: "today" as const,
   appFilter: undefined,
   loading: false,
   error: null,
   load: vi.fn(),
-  setTimeRange: vi.fn(),
+  setDateRangePreset: vi.fn(),
   setAppFilter: vi.fn(),
 });
 

@@ -5,6 +5,8 @@ import {
   formatTime,
   formatDate,
   todayRange,
+  yesterdayRange,
+  last7DaysRange,
 } from "../formatters/time.ts";
 import {
   truncate,
@@ -74,6 +76,20 @@ describe("time formatters", () => {
     const d = new Date(start);
     expect(d.getHours()).toBe(0);
     expect(d.getMinutes()).toBe(0);
+  });
+
+  test("yesterdayRange returns start before end", () => {
+    const { start, end } = yesterdayRange();
+    expect(new Date(start).getTime()).toBeLessThan(new Date(end).getTime());
+    const diffHours =
+      (new Date(end).getTime() - new Date(start).getTime()) / (60 * 60 * 1000);
+    expect(diffHours).toBeCloseTo(24, 0);
+  });
+
+  test("last7DaysRange spans 7 days", () => {
+    const { start, end } = last7DaysRange();
+    const diff = new Date(end).getTime() - new Date(start).getTime();
+    expect(diff).toBeGreaterThanOrEqual(6 * 24 * 60 * 60 * 1000);
   });
 });
 

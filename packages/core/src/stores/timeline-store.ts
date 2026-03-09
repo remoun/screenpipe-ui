@@ -1,47 +1,70 @@
 import { createStore } from "zustand/vanilla";
-import type { ContentItem, ScreenpipeQueryParams } from "../types.ts";
+import type { ContentItem } from "../types.ts";
+import type { DateRangePreset } from "../formatters/time.ts";
 import { ScreenpipeUIClient } from "../client.ts";
-import { todayRange } from "../formatters/time.ts";
+import { todayRange, DATE_RANGE_PRESETS } from "../formatters/time.ts";
 
 export interface TimelineState {
   items: ContentItem[];
-  startTime: string;
-  endTime: string;
+  startTime: string | undefined;
+  endTime: string | undefined;
+  dateRangePreset: DateRangePreset;
   appFilter: string | undefined;
   loading: boolean;
   error: string | null;
 
-  setTimeRange: (start: string, end: string) => void;
+  setDateRangePreset: (preset: DateRangePreset) => void;
   setAppFilter: (app: string | undefined) => void;
   loadTimeline: (client: ScreenpipeUIClient) => Promise<void>;
   reset: () => void;
 }
 
-export function createTimelineStore() {
-  const { start, end } = todayRange();
+function applyPreset(preset: DateRangePreset): {
+  startTime: string | undefined;
+  endTime: string | undefined;
+} {
+  if (preset === "all") return { startTime: undefined, endTime: undefined };
+  const fn = DATE_RANGE_PRESETS.find((p) => p.value === preset)?.getRange;
+  if (!fn) return { startTime: undefined, endTime: undefined };
+  const { start, end } = fn();
+  return { startTime: start, endTime: end };
+}
+
+export interface TimelineStoreOptions {
+  initialDateRangePreset?: DateRangePreset;
+}
+
+export function createTimelineStore(options?: TimelineStoreOptions) {
+  const preset = options?.initialDateRangePreset ?? "today";
+  const { startTime, endTime } = applyPreset(preset);
 
   return createStore<TimelineState>((set, get) => ({
     items: [],
-    startTime: start,
-    endTime: end,
+    startTime,
+    endTime,
+    dateRangePreset: preset,
     appFilter: undefined,
     loading: false,
     error: null,
 
-    setTimeRange: (start: string, end: string) => set({ startTime: start, endTime: end }),
+    setDateRangePreset: (preset) => {
+      const { startTime, endTime } = applyPreset(preset);
+      set({ dateRangePreset: preset, startTime, endTime });
+    },
     setAppFilter: (app) => set({ appFilter: app }),
 
     loadTimeline: async (client: ScreenpipeUIClient) => {
       const { startTime, endTime, appFilter } = get();
       set({ loading: true, error: null });
       try {
-        const res = await client.search({
-          startTime,
-          endTime,
+        const params: Parameters<ScreenpipeUIClient["search"]>[0] = {
           appName: appFilter,
           limit: 100,
           contentType: "all",
-        });
+        };
+        if (startTime) params.startTime = startTime;
+        if (endTime) params.endTime = endTime;
+        const res = await client.search(params);
         set({ items: res.data, loading: false });
       } catch (e) {
         set({
@@ -57,6 +80,7 @@ export function createTimelineStore() {
         items: [],
         startTime: start,
         endTime: end,
+        dateRangePreset: "today",
         appFilter: undefined,
         loading: false,
         error: null,

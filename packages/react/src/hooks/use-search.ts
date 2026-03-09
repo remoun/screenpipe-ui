@@ -1,10 +1,9 @@
 import { useSyncExternalStore, useCallback, useRef } from "react";
-import { createSearchStore } from "@screenpipe-ui/core";
-import type { ScreenpipeUIClient } from "@screenpipe-ui/core";
+import { createSearchStore, ScreenpipeUIClient } from "@screenpipe-ui/core";
 
 type StoreApi = ReturnType<typeof createSearchStore>;
 
-export function useSearch(client: ScreenpipeUIClient) {
+export function useSearch(client: InstanceType<typeof ScreenpipeUIClient>) {
   const storeRef = useRef<StoreApi>();
   if (!storeRef.current) {
     storeRef.current = createSearchStore();
