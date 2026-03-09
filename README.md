@@ -95,16 +95,18 @@ SCREENPIPE_BASE_URL=http://custom:3030 screenpipe-ui health
 | Key | Action |
 |-----|--------|
 | `Tab` | Switch between Search / Timeline / Meetings |
-| `j` / `k` | Navigate up / down |
+| `j` / `k` or ↑ / ↓ | Navigate up / down |
+| `n` / `p` or → / ← | Next / prev (page in Search list; item in detail view) |
 | `/` | Focus search input |
 | `Enter` | Expand / select item |
+| `t` | Cycle content type (Search: all / ocr / audio / ui) |
 | `d` | Cycle date range preset (Today → Yesterday → Last 7 days → All) |
 | `q` | Quit |
 
 ## Development
 
 ```bash
-# Run all tests (90+ tests across packages)
+# Run all tests (98 tests across packages)
 bun test --recursive
 
 # Run tests for a specific package

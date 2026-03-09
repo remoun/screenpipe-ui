@@ -55,7 +55,8 @@ export function useTimeline(client: InstanceType<typeof ScreenpipeUIClient>) {
   );
 
   const load = useCallback(
-    () => store.getState().loadTimeline(client),
+    (options?: { limit?: number }) =>
+      store.getState().loadTimeline(client, options),
     [client, store]
   );
 

@@ -12,9 +12,12 @@ export interface SearchState {
 
   setQuery: (q: string) => void;
   setContentType: (t: ScreenpipeQueryParams["contentType"]) => void;
-  executeSearch: (client: ScreenpipeUIClient) => Promise<void>;
-  nextPage: (client: ScreenpipeUIClient) => Promise<void>;
-  prevPage: (client: ScreenpipeUIClient) => Promise<void>;
+  executeSearch: (
+    client: ScreenpipeUIClient,
+    options?: { query?: string; limit?: number }
+  ) => Promise<void>;
+  nextPage: (client: ScreenpipeUIClient, options?: { limit?: number }) => Promise<void>;
+  prevPage: (client: ScreenpipeUIClient, options?: { limit?: number }) => Promise<void>;
   reset: () => void;
 }
 
@@ -36,19 +39,22 @@ export function createSearchStore() {
     setQuery: (q: string) => set({ query: q }),
     setContentType: (t) => set({ contentType: t }),
 
-    executeSearch: async (client: ScreenpipeUIClient) => {
+    executeSearch: async (client: ScreenpipeUIClient, options?: { query?: string; limit?: number }) => {
       const { query, contentType } = get();
+      const q = options?.query !== undefined ? options.query : query;
+      const limit = options?.limit ?? DEFAULT_LIMIT;
+      if (options?.query !== undefined) set({ query: options.query });
       set({ loading: true, error: null });
       try {
         const res = await client.search({
-          q: query || undefined,
+          q: q || undefined,
           contentType,
-          limit: DEFAULT_LIMIT,
+          limit,
           offset: 0,
         });
         set({
           results: res.data,
-          pagination: res.pagination,
+          pagination: { ...res.pagination, limit },
           loading: false,
         });
       } catch (e) {
@@ -59,8 +65,9 @@ export function createSearchStore() {
       }
     },
 
-    nextPage: async (client: ScreenpipeUIClient) => {
+    nextPage: async (client: ScreenpipeUIClient, options?: { limit?: number }) => {
       const { query, contentType, pagination } = get();
+      const limit = options?.limit ?? pagination.limit;
       const newOffset = pagination.offset + pagination.limit;
       if (newOffset >= pagination.total) return;
       set({ loading: true, error: null });
@@ -68,12 +75,12 @@ export function createSearchStore() {
         const res = await client.search({
           q: query || undefined,
           contentType,
-          limit: pagination.limit,
+          limit,
           offset: newOffset,
         });
         set({
           results: res.data,
-          pagination: res.pagination,
+          pagination: { ...res.pagination, limit },
           loading: false,
         });
       } catch (e) {
@@ -84,21 +91,22 @@ export function createSearchStore() {
       }
     },
 
-    prevPage: async (client: ScreenpipeUIClient) => {
+    prevPage: async (client: ScreenpipeUIClient, options?: { limit?: number }) => {
       const { query, contentType, pagination } = get();
-      const newOffset = Math.max(0, pagination.offset - pagination.limit);
+      const limit = options?.limit ?? pagination.limit;
+      const newOffset = Math.max(0, pagination.offset - limit);
       if (newOffset === pagination.offset) return;
       set({ loading: true, error: null });
       try {
         const res = await client.search({
           q: query || undefined,
           contentType,
-          limit: pagination.limit,
+          limit,
           offset: newOffset,
         });
         set({
           results: res.data,
-          pagination: res.pagination,
+          pagination: { ...res.pagination, limit },
           loading: false,
         });
       } catch (e) {

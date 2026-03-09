@@ -14,7 +14,7 @@ type Tab = (typeof TABS)[number];
 
 export function App({ baseUrl }: { baseUrl?: string }) {
   const app = useApp();
-  const [columns] = useStdoutDimensions();
+  const [columns, rows] = useStdoutDimensions();
   const dividerWidth = Math.max(20, columns - 2);
   const client = useMemo(
     () => createClient(baseUrl ? { baseUrl } : undefined),
@@ -35,11 +35,15 @@ export function App({ baseUrl }: { baseUrl?: string }) {
     }
   });
 
+  const statusBarHeight = 2; // divider + text row
+  const headerHeight = 2; // tab bar + divider
+  const contentHeight = Math.max(1, rows - headerHeight - statusBarHeight);
+
   return (
     <PreferenceStorageProvider value={preferenceStorage}>
-    <Box flexDirection="column" width="100%">
+    <Box flexDirection="column" width={columns} height={Math.max(1, rows - 1)}>
       {/* Tab bar */}
-      <Box paddingX={1} gap={1}>
+      <Box paddingX={1} gap={1} flexShrink={0}>
         {TABS.map((tab) => (
           <Text
             key={tab}
@@ -55,19 +59,21 @@ export function App({ baseUrl }: { baseUrl?: string }) {
       </Box>
 
       {/* Divider */}
-      <Box paddingX={1}>
+      <Box paddingX={1} flexShrink={0}>
         <Text color="gray">{"─".repeat(dividerWidth)}</Text>
       </Box>
 
-      {/* Active view */}
-      <Box flexDirection="column" paddingX={1} flexGrow={1}>
-        {activeTab === "Search" && <SearchView client={client} />}
-        {activeTab === "Timeline" && <TimelineView client={client} />}
-        {activeTab === "Meetings" && <MeetingsView client={client} />}
+      {/* Active view - fixed height so status bar stays anchored */}
+      <Box flexDirection="column" paddingX={1} height={contentHeight} overflow="hidden">
+        {activeTab === "Search" && <SearchView client={client} contentHeight={contentHeight} />}
+        {activeTab === "Timeline" && <TimelineView client={client} contentHeight={contentHeight} />}
+        {activeTab === "Meetings" && <MeetingsView client={client} contentHeight={contentHeight} />}
       </Box>
 
-      {/* Status bar */}
-      <StatusBar client={client} />
+      {/* Status bar - anchored at bottom, never shrinks */}
+      <Box flexShrink={0}>
+        <StatusBar client={client} />
+      </Box>
     </Box>
     </PreferenceStorageProvider>
   );

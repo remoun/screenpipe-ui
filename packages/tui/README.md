@@ -17,9 +17,13 @@ bunx @screenpipe-ui/tui
 | Key | Action |
 |-----|--------|
 | `Tab` | Switch between Search / Timeline / Meetings |
-| `j` / `k` | Navigate down / up |
+| `j` / `k` or ↑ / ↓ | Navigate down / up |
+| `n` / `p` or → / ← | Next / prev (page in Search; item in detail view) |
 | `/` | Focus search input |
 | `Enter` | Expand / select item |
+| `t` | Cycle content type (Search: all / ocr / audio / ui) |
+| `d` | Cycle date range preset |
+| `r` | Reload (Timeline, Meetings) |
 | `q` | Quit |
 
 ## Views

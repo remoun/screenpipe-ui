@@ -17,20 +17,21 @@ export function useSearch(client: InstanceType<typeof ScreenpipeUIClient>) {
   );
 
   const search = useCallback(
-    (query?: string) => {
-      if (query !== undefined) store.getState().setQuery(query);
-      return store.getState().executeSearch(client);
-    },
+    (query?: string, options?: { limit?: number }) =>
+      store.getState().executeSearch(client, {
+        query: query !== undefined ? query : undefined,
+        limit: options?.limit,
+      }),
     [client, store],
   );
 
   const nextPage = useCallback(
-    () => store.getState().nextPage(client),
+    (options?: { limit?: number }) => store.getState().nextPage(client, options),
     [client, store],
   );
 
   const prevPage = useCallback(
-    () => store.getState().prevPage(client),
+    (options?: { limit?: number }) => store.getState().prevPage(client, options),
     [client, store],
   );
 

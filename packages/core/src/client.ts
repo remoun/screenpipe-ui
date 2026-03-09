@@ -50,7 +50,12 @@ export class ScreenpipeUIClient {
   }
 
   async search(params: ScreenpipeQueryParams = {}): Promise<ScreenpipeResponse> {
-    return this.get<ScreenpipeResponse>("/search", params as Record<string, unknown>);
+    const apiParams = { ...params } as Record<string, unknown>;
+    // API expects "accessibility" for UI/accessibility-tree content, not "ui"
+    if (apiParams.contentType === "ui") {
+      apiParams.contentType = "accessibility";
+    }
+    return this.get<ScreenpipeResponse>("/search", apiParams);
   }
 
   async health(): Promise<HealthCheckResponse> {

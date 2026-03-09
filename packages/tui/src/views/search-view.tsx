@@ -11,9 +11,14 @@ import { useStdoutDimensions } from "../hooks/use-stdout-dimensions.ts";
 
 interface Props {
   client: ScreenpipeUIClient;
+  contentHeight: number;
 }
 
-export function SearchView({ client }: Props) {
+// App chrome + Search chrome + 1 from flicker-fix (root height = rows-1)
+const ROWS_FOR_CHROME = 9;
+const MAX_PAGE_SIZE = 120;
+
+export function SearchView({ client, contentHeight }: Props) {
   const {
     query,
     results,
@@ -36,28 +41,41 @@ export function SearchView({ client }: Props) {
   const [detailScrollOffset, setDetailScrollOffset] = useState(0);
 
   const contentWidth = Math.max(20, columns - 4);
-  const detailContentHeight = Math.max(5, rows - 16);
+  // Use terminal rows directly so page size matches available height (avoids stale contentHeight)
+  const listRows = Math.min(MAX_PAGE_SIZE, Math.max(5, rows - ROWS_FOR_CHROME));
+  const detailContentHeight = Math.max(5, listRows - 2);
+
+  const [scrollOffset, setScrollOffset] = useState(0);
 
   useEffect(() => {
-    search();
-  }, []);
+    search(undefined, { limit: listRows });
+  }, [listRows]);
+
+  // Keep selection in view when listRows or results change (e.g. terminal resize)
+  useEffect(() => {
+    setScrollOffset((s) => {
+      if (selectedIndex < s) return selectedIndex;
+      if (selectedIndex >= s + listRows) return Math.max(0, selectedIndex - listRows + 1);
+      return s;
+    });
+  }, [listRows, selectedIndex]);
 
   useInput((input, key) => {
     if (detailItem) {
       if (key.escape || key.return) {
         setDetailItem(null);
         setDetailScrollOffset(0);
-      } else if (input === "n" && selectedIndex < results.length - 1) {
+      } else if ((input === "n" || key.rightArrow) && selectedIndex < results.length - 1) {
         setSelectedIndex(selectedIndex + 1);
         setDetailItem(results[selectedIndex + 1]);
         setDetailScrollOffset(0);
-      } else if (input === "p" && selectedIndex > 0) {
+      } else if ((input === "p" || key.leftArrow) && selectedIndex > 0) {
         setSelectedIndex(selectedIndex - 1);
         setDetailItem(results[selectedIndex - 1]);
         setDetailScrollOffset(0);
-      } else if (input === "j") {
+      } else if (input === "j" || key.downArrow) {
         setDetailScrollOffset((o) => o + 1);
-      } else if (input === "k") {
+      } else if (input === "k" || key.upArrow) {
         setDetailScrollOffset((o) => Math.max(0, o - 1));
       }
       return;
@@ -66,9 +84,10 @@ export function SearchView({ client }: Props) {
     if (inputFocused) {
       if (key.return) {
         setQuery(inputValue);
-        search(inputValue);
+        search(inputValue, { limit: listRows });
         setInputFocused(false);
         setSelectedIndex(0);
+        setScrollOffset(0);
       }
       if (key.escape) {
         setInputFocused(false);
@@ -87,25 +106,41 @@ export function SearchView({ client }: Props) {
       return;
     }
 
-    if (input === "j") {
-      setSelectedIndex((i) => Math.min(i + 1, results.length - 1));
+    if (input === "j" || key.downArrow) {
+      setSelectedIndex((i) => {
+        const next = Math.min(i + 1, results.length - 1);
+        setScrollOffset((s) => {
+          if (next >= s + listRows) return next - listRows + 1;
+          return s;
+        });
+        return next;
+      });
     }
-    if (input === "k") {
-      setSelectedIndex((i) => Math.max(i - 1, 0));
+    if (input === "k" || key.upArrow) {
+      setSelectedIndex((i) => {
+        const next = Math.max(i - 1, 0);
+        setScrollOffset((s) => {
+          if (next < s) return next;
+          return s;
+        });
+        return next;
+      });
     }
-    if (input === "n") {
-      nextPage();
+    if (input === "n" || key.rightArrow) {
+      nextPage({ limit: listRows });
       setSelectedIndex(0);
+      setScrollOffset(0);
     }
-    if (input === "p") {
-      prevPage();
+    if (input === "p" || key.leftArrow) {
+      prevPage({ limit: listRows });
       setSelectedIndex(0);
+      setScrollOffset(0);
     }
     if (input === "t") {
       const types = ["all", "ocr", "audio", "ui"] as const;
       const idx = types.indexOf(contentType as (typeof types)[number]);
       setContentType(types[(idx + 1) % types.length]);
-      search();
+      search(undefined, { limit: listRows });
     }
   });
 
@@ -143,61 +178,71 @@ export function SearchView({ client }: Props) {
         <Text color="gray">{"─".repeat(contentWidth)}</Text>
       </Box>
 
-      {/* Loading */}
-      {loading && (
-        <Box gap={1}>
-          <Text color="cyan">
-            <Spinner type="dots" />
-          </Text>
-          <Text>Searching...</Text>
-        </Box>
-      )}
-
-      {/* Error */}
-      {error && (
-        <Box>
-          <Text color="red" bold>
-            Error: {error}
-          </Text>
-        </Box>
-      )}
-
-      {/* Detail view */}
-      {detailItem && (
-        <DetailView
-          item={detailItem}
-          scrollOffset={detailScrollOffset}
-          contentWidth={contentWidth}
-          contentHeight={detailContentHeight}
-          itemPosition={results.length > 1 ? { current: selectedIndex + 1, total: results.length } : undefined}
-        />
-      )}
-
-      {/* Results */}
-      {!detailItem && !loading && results.length === 0 && !error && (
-        <Text dimColor>No results. Try a different query or press / to search.</Text>
-      )}
-
-      {!detailItem &&
-        !loading &&
-        results.map((item, idx) => (
-          <ResultItem
-            key={idx}
-            item={item}
-            selected={idx === selectedIndex}
+      {/* Content area: always fixed height so status bar stays anchored */}
+      <Box flexDirection="column" height={listRows} overflow="hidden">
+        {loading && results.length === 0 && (
+          <Box gap={1}>
+            <Text color="cyan">
+              <Spinner type="dots" />
+            </Text>
+            <Text>Searching...</Text>
+          </Box>
+        )}
+        {!loading && error && (
+          <Box>
+            <Text color="red" bold>
+              Error: {error}
+            </Text>
+          </Box>
+        )}
+        {!error && detailItem && (
+          <DetailView
+            item={detailItem}
+            scrollOffset={detailScrollOffset}
             contentWidth={contentWidth}
+            contentHeight={detailContentHeight}
+            itemPosition={results.length > 1 ? { current: selectedIndex + 1, total: results.length } : undefined}
           />
-        ))}
+        )}
+        {!loading && !error && !detailItem && results.length === 0 && (
+          <Text dimColor>No results. Try a different query or press / to search.</Text>
+        )}
+        {!error &&
+          !detailItem &&
+          results.length > 0 &&
+          (() => {
+            const start = Math.min(scrollOffset, Math.max(0, results.length - listRows));
+            const visible = results.slice(start, start + listRows);
+            return visible.map((item, i) => (
+              <ResultItem
+                key={start + i}
+                item={item}
+                selected={start + i === selectedIndex}
+                contentWidth={contentWidth}
+              />
+            ));
+          })()}
+      </Box>
 
-      {/* Pagination footer */}
-      {pagination.total > 0 && (
-        <Box marginTop={1} gap={2}>
-          <Text dimColor>
-            {pagination.total} results | page {page}/{totalPages}
-          </Text>
-          <Text dimColor>n: next | p: prev | j/k: navigate | Enter: view</Text>
-        </Box>
-      )}
+      {/* Pagination footer - always reserve space to prevent status bar jump */}
+      <Box marginTop={1} minHeight={1} gap={2}>
+        {pagination.total > 0 && !detailItem ? (
+          <>
+            <Text dimColor>
+              {loading ? (
+                <>
+                  <Spinner type="dots" />
+                  {" Loading..."}
+                </>
+              ) : (
+                `${pagination.total} results | page ${page}/${totalPages}`
+              )}
+            </Text>
+            <Box flexGrow={1} />
+            <Text dimColor>n: next | p: prev | j/k: navigate | Enter: view</Text>
+          </>
+        ) : null}
+      </Box>
     </Box>
   );
 }

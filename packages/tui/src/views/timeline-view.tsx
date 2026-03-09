@@ -16,7 +16,10 @@ import { useStdoutDimensions } from "../hooks/use-stdout-dimensions.ts";
 
 interface Props {
   client: ScreenpipeUIClient;
+  contentHeight: number;
 }
+
+const ROWS_FOR_CHROME = 9; // app + timeline chrome + flicker-fix
 
 interface HourGroup {
   hour: string;
@@ -45,9 +48,7 @@ function groupByHour(items: ContentItem[]): HourGroup[] {
   }));
 }
 
-const VISIBLE_ROWS = 20;
-
-export function TimelineView({ client }: Props) {
+export function TimelineView({ client, contentHeight }: Props) {
   const {
     items,
     loading,
@@ -61,7 +62,8 @@ export function TimelineView({ client }: Props) {
 
   const [columns, rows] = useStdoutDimensions();
   const contentWidth = Math.max(20, columns - 4);
-  const detailContentHeight = Math.max(5, rows - 16);
+  const visibleRows = Math.min(120, Math.max(5, rows - ROWS_FOR_CHROME));
+  const detailContentHeight = Math.max(5, visibleRows - 2);
 
   const [scrollOffset, setScrollOffset] = useState(0);
   const [selectedFlatIdx, setSelectedFlatIdx] = useState(0);
@@ -69,8 +71,8 @@ export function TimelineView({ client }: Props) {
   const [detailScrollOffset, setDetailScrollOffset] = useState(0);
 
   useEffect(() => {
-    load();
-  }, []);
+    load({ limit: visibleRows });
+  }, [visibleRows]);
 
   const groups = groupByHour(items);
 
@@ -91,7 +93,7 @@ export function TimelineView({ client }: Props) {
 
   // Keep selectedFlatIdx in valid range when flatRows changes
   const clampedSelected = Math.min(selectedFlatIdx, Math.max(0, flatRows.length - 1));
-  const maxScroll = Math.max(0, flatRows.length - VISIBLE_ROWS);
+  const maxScroll = Math.max(0, flatRows.length - visibleRows);
   const effectiveScroll = Math.min(scrollOffset, maxScroll);
 
   const findNextItemIdx = (from: number) => {
@@ -120,7 +122,7 @@ export function TimelineView({ client }: Props) {
       if (key.escape || key.return) {
         setDetailItem(null);
         setDetailScrollOffset(0);
-      } else if (input === "n") {
+      } else if (input === "n" || key.rightArrow) {
         const next = findNextItemIdx(clampedSelected);
         if (next !== clampedSelected) {
           const row = flatRows[next];
@@ -128,12 +130,12 @@ export function TimelineView({ client }: Props) {
             setSelectedFlatIdx(next);
             setDetailItem(row.item);
             setDetailScrollOffset(0);
-            if (next >= effectiveScroll + VISIBLE_ROWS) {
-              setScrollOffset(next - VISIBLE_ROWS + 1);
+            if (next >= effectiveScroll + visibleRows) {
+              setScrollOffset(next - visibleRows + 1);
             }
           }
         }
-      } else if (input === "p") {
+      } else if (input === "p" || key.leftArrow) {
         const prev = findPrevItemIdx(clampedSelected);
         if (prev !== clampedSelected) {
           const row = flatRows[prev];
@@ -146,22 +148,22 @@ export function TimelineView({ client }: Props) {
             }
           }
         }
-      } else if (input === "j") {
+      } else if (input === "j" || key.downArrow) {
         setDetailScrollOffset((o) => o + 1);
-      } else if (input === "k") {
+      } else if (input === "k" || key.upArrow) {
         setDetailScrollOffset((o) => Math.max(0, o - 1));
       }
       return;
     }
 
-    if (input === "j") {
+    if (input === "j" || key.downArrow) {
       const next = Math.min(clampedSelected + 1, Math.max(0, flatRows.length - 1));
       setSelectedFlatIdx(next);
-      if (next >= effectiveScroll + VISIBLE_ROWS) {
-        setScrollOffset(next - VISIBLE_ROWS + 1);
+      if (next >= effectiveScroll + visibleRows) {
+        setScrollOffset(next - visibleRows + 1);
       }
     }
-    if (input === "k") {
+    if (input === "k" || key.upArrow) {
       const next = Math.max(clampedSelected - 1, 0);
       setSelectedFlatIdx(next);
       if (next < effectiveScroll) {
@@ -169,7 +171,7 @@ export function TimelineView({ client }: Props) {
       }
     }
     if (input === "r") {
-      load();
+      load({ limit: visibleRows });
       setScrollOffset(0);
       setSelectedFlatIdx(0);
     }
@@ -177,7 +179,7 @@ export function TimelineView({ client }: Props) {
       const idx = DATE_RANGE_PRESETS.findIndex((p) => p.value === dateRangePreset);
       const next = DATE_RANGE_PRESETS[(idx + 1) % DATE_RANGE_PRESETS.length];
       setDateRangePreset(next.value);
-      load();
+      load({ limit: visibleRows });
       setScrollOffset(0);
       setSelectedFlatIdx(0);
     }
@@ -190,7 +192,7 @@ export function TimelineView({ client }: Props) {
     }
   });
 
-  const visibleRows = flatRows.slice(effectiveScroll, effectiveScroll + VISIBLE_ROWS);
+  const visibleSlice = flatRows.slice(effectiveScroll, effectiveScroll + visibleRows);
 
   return (
     <Box flexDirection="column">
@@ -242,8 +244,9 @@ export function TimelineView({ client }: Props) {
       )}
 
       {!loading &&
-        !detailItem &&
-        visibleRows.map((row, i) => {
+        !detailItem && (
+        <Box flexDirection="column" height={visibleRows} overflow="hidden">
+        {visibleSlice.map((row, i) => {
           const flatIdx = effectiveScroll + i;
           const selected = flatIdx === clampedSelected;
           if (row.type === "header") {
@@ -285,16 +288,9 @@ export function TimelineView({ client }: Props) {
             </Box>
           );
         })}
-
-      {flatRows.length > 20 && (
-        <Box marginTop={1}>
-          <Text dimColor>
-            Showing {scrollOffset + 1}-
-            {Math.min(scrollOffset + 20, flatRows.length)} of {flatRows.length}{" "}
-            rows
-          </Text>
         </Box>
       )}
+
     </Box>
   );
 }

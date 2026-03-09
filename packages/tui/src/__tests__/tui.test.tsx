@@ -101,7 +101,8 @@ describe("TUI App", () => {
   it("shows status bar with connection info", () => {
     const { lastFrame } = render(<App />);
     const frame = lastFrame();
-    expect(frame).toContain("screenpipe-tui");
+    expect(frame).toContain("screenpipe");
+    expect(frame).toContain("tui");
   });
 
   it("pressing t triggers search to re-run with new type", async () => {
@@ -132,6 +133,28 @@ describe("TUI App", () => {
     await new Promise((r) => setImmediate(r));
     const frame = lastFrame();
     expect(frame).toContain("Enter/Esc: close");
+  });
+
+  it("arrow keys work as j/k and n/p aliases", async () => {
+    mockUseSearch.mockImplementation(() => ({
+      ...defaultUseSearch(),
+      results: [
+        { type: "OCR", content: { text: "first", timestamp: "", appName: "App1" } },
+        { type: "OCR", content: { text: "second", timestamp: "", appName: "App2" } },
+      ],
+      pagination: { limit: 20, offset: 0, total: 2 },
+    }));
+    const { lastFrame, stdin } = render(<App />);
+    await new Promise((r) => setImmediate(r));
+    stdin.write("\r"); // open detail (item 1)
+    await new Promise((r) => setImmediate(r));
+    expect(lastFrame()).toContain("(1/2)");
+    stdin.write("\x1b[C"); // right arrow = next item (same as n)
+    await new Promise((r) => setImmediate(r));
+    expect(lastFrame()).toContain("(2/2)");
+    stdin.write("\x1b[D"); // left arrow = prev item (same as p)
+    await new Promise((r) => setImmediate(r));
+    expect(lastFrame()).toContain("(1/2)");
   });
 
   it("n/p move between items in Search detail view", async () => {

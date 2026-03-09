@@ -15,7 +15,10 @@ export interface TimelineState {
 
   setDateRangePreset: (preset: DateRangePreset) => void;
   setAppFilter: (app: string | undefined) => void;
-  loadTimeline: (client: ScreenpipeUIClient) => Promise<void>;
+  loadTimeline: (
+    client: ScreenpipeUIClient,
+    options?: { limit?: number }
+  ) => Promise<void>;
   reset: () => void;
 }
 
@@ -53,13 +56,14 @@ export function createTimelineStore(options?: TimelineStoreOptions) {
     },
     setAppFilter: (app) => set({ appFilter: app }),
 
-    loadTimeline: async (client: ScreenpipeUIClient) => {
+    loadTimeline: async (client: ScreenpipeUIClient, options?: { limit?: number }) => {
       const { startTime, endTime, appFilter } = get();
+      const limit = options?.limit ?? 100;
       set({ loading: true, error: null });
       try {
         const params: Parameters<ScreenpipeUIClient["search"]>[0] = {
           appName: appFilter,
-          limit: 100,
+          limit,
           contentType: "all",
         };
         if (startTime) params.startTime = startTime;
