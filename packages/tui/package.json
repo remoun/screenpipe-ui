@@ -1,6 +1,6 @@
 {
   "name": "@screenpipe-ui/tui",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Interactive TUI for screenpipe. Part of screenpipe-ui — also includes CLI and web interfaces.",
   "type": "module",
   "main": "./dist/index.js",
