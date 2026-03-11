@@ -14,8 +14,7 @@ interface Props {
   contentHeight: number;
 }
 
-// App chrome + Search chrome + 1 from flicker-fix (root height = rows-1)
-const ROWS_FOR_CHROME = 9;
+const SEARCH_CHROME = 6; // input(1) + divider(3) + pagination(2)
 const MAX_PAGE_SIZE = 120;
 
 export function SearchView({ client, contentHeight }: Props) {
@@ -33,7 +32,7 @@ export function SearchView({ client, contentHeight }: Props) {
     contentType,
   } = useSearch(client);
 
-  const [columns, rows] = useStdoutDimensions();
+  const [columns] = useStdoutDimensions();
   const [inputFocused, setInputFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [inputValue, setInputValue] = useState("");
@@ -41,15 +40,14 @@ export function SearchView({ client, contentHeight }: Props) {
   const [detailScrollOffset, setDetailScrollOffset] = useState(0);
 
   const contentWidth = Math.max(20, columns - 4);
-  // Use terminal rows directly so page size matches available height (avoids stale contentHeight)
-  const listRows = Math.min(MAX_PAGE_SIZE, Math.max(5, rows - ROWS_FOR_CHROME));
+  const listRows = Math.min(MAX_PAGE_SIZE, Math.max(5, contentHeight - SEARCH_CHROME));
   const detailContentHeight = Math.max(5, listRows - 2);
 
   const [scrollOffset, setScrollOffset] = useState(0);
 
   useEffect(() => {
     search(undefined, { limit: listRows });
-  }, [listRows]);
+  }, [listRows, search]);
 
   // Keep selection in view when listRows or results change (e.g. terminal resize)
   useEffect(() => {

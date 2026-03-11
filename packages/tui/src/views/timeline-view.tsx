@@ -19,7 +19,7 @@ interface Props {
   contentHeight: number;
 }
 
-const ROWS_FOR_CHROME = 9; // app + timeline chrome + flicker-fix
+const TIMELINE_CHROME = 4; // header(1) + marginBottom(1) + divider(1) + marginBottom(1)
 
 interface HourGroup {
   hour: string;
@@ -60,9 +60,9 @@ export function TimelineView({ client, contentHeight }: Props) {
     setDateRangePreset,
   } = useTimeline(client);
 
-  const [columns, rows] = useStdoutDimensions();
+  const [columns] = useStdoutDimensions();
   const contentWidth = Math.max(20, columns - 4);
-  const visibleRows = Math.min(120, Math.max(5, rows - ROWS_FOR_CHROME));
+  const visibleRows = Math.min(120, Math.max(5, contentHeight - TIMELINE_CHROME));
   const detailContentHeight = Math.max(5, visibleRows - 2);
 
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -214,82 +214,82 @@ export function TimelineView({ client, contentHeight }: Props) {
         <Text color="gray">{"─".repeat(contentWidth)}</Text>
       </Box>
 
-      {loading && (
-        <Box gap={1}>
-          <Text color="cyan">
-            <Spinner type="dots" />
+      {/* Content area: always fixed height so status bar stays anchored */}
+      <Box flexDirection="column" height={visibleRows} overflow="hidden">
+        {loading && (
+          <Box gap={1}>
+            <Text color="cyan">
+              <Spinner type="dots" />
+            </Text>
+            <Text>Loading timeline...</Text>
+          </Box>
+        )}
+
+        {!loading && error && (
+          <Text color="red" bold>
+            Error: {error}
           </Text>
-          <Text>Loading timeline...</Text>
-        </Box>
-      )}
+        )}
 
-      {error && (
-        <Text color="red" bold>
-          Error: {error}
-        </Text>
-      )}
+        {!loading && items.length === 0 && !error && (
+          <Text dimColor>No timeline items for this period. Press d to change date, r to reload.</Text>
+        )}
 
-      {!loading && items.length === 0 && !error && (
-        <Text dimColor>No timeline items for this period. Press d to change date, r to reload.</Text>
-      )}
+        {!loading && detailItem && (
+          <DetailView
+            item={detailItem}
+            scrollOffset={detailScrollOffset}
+            contentWidth={contentWidth}
+            contentHeight={detailContentHeight}
+            itemPosition={itemCount > 1 ? { current: currentItemRank, total: itemCount } : undefined}
+          />
+        )}
 
-      {!loading && detailItem && (
-        <DetailView
-          item={detailItem}
-          scrollOffset={detailScrollOffset}
-          contentWidth={contentWidth}
-          contentHeight={detailContentHeight}
-          itemPosition={itemCount > 1 ? { current: currentItemRank, total: itemCount } : undefined}
-        />
-      )}
+        {!loading &&
+          !detailItem &&
+          visibleSlice.map((row, i) => {
+            const flatIdx = effectiveScroll + i;
+            const selected = flatIdx === clampedSelected;
+            if (row.type === "header") {
+              return (
+                <Box key={`h-${flatIdx}`} marginTop={i > 0 ? 1 : 0} gap={1}>
+                  <Text color="gray">{"  "}</Text>
+                  <Text color="yellow" bold>
+                    {row.text}
+                  </Text>
+                </Box>
+              );
+            }
+            const label = contentTypeLabel(row.item);
+            const app = getContentAppName(row.item);
+            const time = formatTime(getContentTimestamp(row.item));
+            const previewMaxLen = Math.max(10, contentWidth - 31);
+            const preview = contentPreview(row.item, previewMaxLen);
 
-      {!loading &&
-        !detailItem && (
-        <Box flexDirection="column" height={visibleRows} overflow="hidden">
-        {visibleSlice.map((row, i) => {
-          const flatIdx = effectiveScroll + i;
-          const selected = flatIdx === clampedSelected;
-          if (row.type === "header") {
+            const typeColor =
+              row.item.type === "OCR"
+                ? "blue"
+                : row.item.type === "Audio"
+                  ? "green"
+                  : "magenta";
+
             return (
-              <Box key={`h-${flatIdx}`} marginTop={i > 0 ? 1 : 0} gap={1}>
-                <Text color="gray">{"  "}</Text>
-                <Text color="yellow" bold>
-                  {row.text}
+              <Box key={`i-${flatIdx}`} gap={1}>
+                <Text color={selected ? "cyan" : "gray"}>{selected ? ">" : " "}</Text>
+                <Text color="gray">{time}</Text>
+                <Text color={typeColor} bold>
+                  {label.padEnd(6)}
+                </Text>
+                <Text color="white" bold>
+                  {(app ?? "").slice(0, 12).padEnd(12)}
+                </Text>
+                <Text color={selected ? "white" : undefined} dimColor={!selected}>
+                  {preview}
                 </Text>
               </Box>
             );
-          }
-          const label = contentTypeLabel(row.item);
-          const app = getContentAppName(row.item);
-          const time = formatTime(getContentTimestamp(row.item));
-          const previewMaxLen = Math.max(10, contentWidth - 31);
-          const preview = contentPreview(row.item, previewMaxLen);
-
-          const typeColor =
-            row.item.type === "OCR"
-              ? "blue"
-              : row.item.type === "Audio"
-                ? "green"
-                : "magenta";
-
-          return (
-            <Box key={`i-${flatIdx}`} gap={1}>
-              <Text color={selected ? "cyan" : "gray"}>{selected ? ">" : " "}</Text>
-              <Text color="gray">{time}</Text>
-              <Text color={typeColor} bold>
-                {label.padEnd(6)}
-              </Text>
-              <Text color="white" bold>
-                {(app ?? "").slice(0, 12).padEnd(12)}
-              </Text>
-              <Text color={selected ? "white" : undefined} dimColor={!selected}>
-                {preview}
-              </Text>
-            </Box>
-          );
-        })}
-        </Box>
-      )}
+          })}
+      </Box>
 
     </Box>
   );

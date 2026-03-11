@@ -20,7 +20,7 @@ bunx @screenpipe-ui/tui
 | `j` / `k` or ↑ / ↓ | Navigate down / up |
 | `n` / `p` or → / ← | Next / prev (page in Search; item in detail view) |
 | `/` | Focus search input |
-| `Enter` | Expand / select item |
+| `Enter` | View / select item |
 | `t` | Cycle content type (Search: all / ocr / audio / ui) |
 | `d` | Cycle date range preset |
 | `r` | Reload (Timeline, Meetings) |

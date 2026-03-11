@@ -37,11 +37,12 @@ export function App({ baseUrl }: { baseUrl?: string }) {
 
   const statusBarHeight = 2; // divider + text row
   const headerHeight = 2; // tab bar + divider
-  const contentHeight = Math.max(1, rows - headerHeight - statusBarHeight);
+  const containerHeight = Math.max(1, rows - 1); // reserve cursor line
+  const contentHeight = Math.max(1, containerHeight - headerHeight - statusBarHeight);
 
   return (
     <PreferenceStorageProvider value={preferenceStorage}>
-    <Box flexDirection="column" width={columns} height={Math.max(1, rows - 1)}>
+    <Box flexDirection="column" width={columns} height={containerHeight}>
       {/* Tab bar */}
       <Box paddingX={1} gap={1} flexShrink={0}>
         {TABS.map((tab) => (
